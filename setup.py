@@ -23,4 +23,7 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     python_requires='>=3.0',
+
+    data_files=[
+        ('po', ['po/en.po', 'po/ja.po', 'po/zh_CN.po', 'po/zh_TW.po'])],
 )
