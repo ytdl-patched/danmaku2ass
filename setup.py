@@ -16,7 +16,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
 
     url="https://github.com/m13253/danmaku2ass",
-    packages=setuptools.find_packages(),
+    packages=['danmaku2ass'],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
