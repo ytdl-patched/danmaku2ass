@@ -150,6 +150,45 @@ def ReadCommentsNiconico(f, fontsize):
             continue
 
 
+# https://github.com/animelover1984/youtube-dl/blob/master/youtube_dl/extractor/niconico.py
+def ReadCommentsNiconicoJson(f, fontsize):
+    NiconicoColorMap = {'red': 0xff0000, 'pink': 0xff8080, 'orange': 0xffcc00, 'yellow': 0xffff00, 'green': 0x00ff00, 'cyan': 0x00ffff, 'blue': 0x0000ff, 'purple': 0xc000ff, 'black': 0x000000, 'niconicowhite': 0xcccc99, 'white2': 0xcccc99, 'truered': 0xcc0033, 'red2': 0xcc0033, 'passionorange': 0xff6600, 'orange2': 0xff6600, 'madyellow': 0x999900, 'yellow2': 0x999900, 'elementalgreen': 0x00cc66, 'green2': 0x00cc66, 'marineblue': 0x33ffcc, 'blue2': 0x33ffcc, 'nobleviolet': 0x6633cc, 'purple2': 0x6633cc}
+    dom = json.load(f)
+
+    for comment_dom in dom:
+        comment = None
+
+        if ('chat' in comment_dom):
+            comment = comment_dom['chat']
+        elif ('mail' in comment_dom):
+            comment = comment_dom
+        else:
+            continue
+
+        try:
+            c = comment['content']
+
+            pos = 0
+            color = 0xffffff
+            size = fontsize
+            for mailstyle in comment['mail'].split():
+                if mailstyle == 'ue':
+                    pos = 1
+                elif mailstyle == 'shita':
+                    pos = 2
+                elif mailstyle == 'big':
+                    size = fontsize * 1.44
+                elif mailstyle == 'small':
+                    size = fontsize * 0.64
+                elif mailstyle in NiconicoColorMap:
+                    color = NiconicoColorMap[mailstyle]
+            
+            yield (max(comment['vpos'], 0) * 0.01, comment['date'], comment.get('no', 0), c, pos, color, size, (c.count('\n') + 1) * size, CalculateLength(c) * size)
+        except (AssertionError, AttributeError, IndexError, TypeError, ValueError, KeyError):
+            # logging.warning(_('Invalid comment: %s') % json.dumps(comment))
+            continue
+
+
 def ReadCommentsAcfun(f, fontsize):
     #comment_element = json.load(f)
     # after load acfun comment json file as python list, flatten the list
@@ -270,7 +309,7 @@ def ReadCommentsMioMio(f, fontsize):
             continue
 
 
-CommentFormatMap = {'Niconico': ReadCommentsNiconico, 'Acfun': ReadCommentsAcfun, 'Bilibili': ReadCommentsBilibili, 'Bilibili2': ReadCommentsBilibili2, 'Tudou': ReadCommentsTudou, 'Tudou2': ReadCommentsTudou2, 'MioMio': ReadCommentsMioMio}
+CommentFormatMap = {'Niconico': ReadCommentsNiconico, 'NiconicoJson': ReadCommentsNiconicoJson, 'Bilibili': ReadCommentsBilibili}
 
 
 def WriteCommentBilibiliPositioned(f, c, width, height, styleid):
